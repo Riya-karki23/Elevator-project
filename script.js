@@ -6,8 +6,14 @@ let liftStates = Array(liftImages.length).fill('idle');
 let liftCurrentPositions = Array.from(liftImages)
     .map(lift => lift.getBoundingClientRect().top + window.scrollY);
 
+let isLiftMoving = false; 
+
 callBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
+        if (isLiftMoving || btn.classList.contains('btn-waiting') || btn.classList.contains('btn-arrived')) {
+            return;
+        }
+
         btn.classList.add('btn-waiting');
         btn.innerHTML = 'waiting';
 
@@ -17,6 +23,7 @@ callBtns.forEach((btn) => {
         const nearestLiftIndex = findNearestAvailableLift(btnY);
 
         if (nearestLiftIndex !== -1) {
+            isLiftMoving = true; 
             moveLift(nearestLiftIndex, btnY, btn);
         } else {
             console.log('All lifts are currently busy');
@@ -62,6 +69,8 @@ function moveLift(liftIndex, targetY, btn) {
         lift.style.top = `${targetY}px`; 
     }, 0);
 
+    console.log(arrivalTime / 1000);
+
     liftCurrentPositions[liftIndex] = targetY;
     liftStates[liftIndex] = 'moving'; 
 
@@ -80,7 +89,6 @@ function moveLift(liftIndex, targetY, btn) {
 }
 
 function resetButtonAndLift(liftIndex, btn) {
-    // Reset button
     btn.classList.remove('btn-arrived');
     btn.classList.add('btn-call');
     btn.innerHTML = 'call';
@@ -89,6 +97,8 @@ function resetButtonAndLift(liftIndex, btn) {
     lift.classList.remove('lift-green');
     lift.classList.add('lift-black');
     liftStates[liftIndex] = 'idle'; 
+
+    isLiftMoving = false;
 }
 
 function AvailableLift(targetY, btn) {
