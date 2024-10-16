@@ -1,93 +1,70 @@
-const callBtns = document.querySelectorAll('.btn-call');
-const liftImages = document.querySelectorAll('.lift-image');
-const arrivalSound = document.querySelector('#arrival-sound');
+const callBtns=document.querySelectorAll('.btn-call');
+const liftImage=document.querySelectorAll('.lift-image');
+const arrivalSound=document.querySelector('#arrival-sound');
 
-let liftStates = Array(liftImages.length).fill('idle');
+let liftStates = Array(liftImage.length).fill('idle');
 let liftCurrentPositions = Array.from(liftImages)
     .map(lift => lift.getBoundingClientRect().top + window.scrollY);
 
 callBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
         btn.classList.add('btn-waiting');
-        btn.innerHTML = 'waiting';
+        btn.innerHTML='waiting';
 
-        const buttonRect = btn.getBoundingClientRect();
-        const btnY = buttonRect.top + window.scrollY;
+    const buttonRect=btn.getBoundingClientRect();
 
-        const nearestLiftIndex = findNearestAvailableLift(btnY);
+    const btnX= buttonRect.left+window.scrollX;
+    const btnY=buttonRect.top+window.screenY;
 
-        if (nearestLiftIndex !== -1) {
-            moveLift(nearestLiftIndex, btnY, btn);
-        } else {
-            console.log('All lifts are currently busy');
-            btn.innerHTML = 'busy';
-        }
-    });
-});
+    console.log(index,btnX,btnY)
+    moveLift(index,btnY,btn);
+})
+})
 
-function findNearestAvailableLift(targetY) {
-    let nearestLiftIndex = -1;
-    let shortestDistance = Infinity;
 
-    liftCurrentPositions.forEach((liftY, index) => {
-        if (liftStates[index] === 'idle') {
-            const distance = Math.abs(targetY - liftY); 
-            if (distance < shortestDistance) {
-                shortestDistance = distance;
-                nearestLiftIndex = index; 
-            }
-        }
-    });
+// -------------------------------------------------------move lift
 
-    return nearestLiftIndex;
-}
+function moveLift(index,positionY,btn){
+const lift=liftImage[index];
 
-function moveLift(liftIndex, targetY, btn) {
-    const lift = liftImages[liftIndex];
-    lift.style.position = 'absolute'; 
-    lift.classList.remove('lift-black');
-    lift.classList.add('lift-red'); 
-    
-    const currentLiftY = liftCurrentPositions[liftIndex];
-    const distance = Math.abs(targetY - currentLiftY);
-    
-    const speed = 100; 
-    const arrivalTime = (distance / speed) * 1000; 
+lift.style.position='absolute';
+lift.style.transition=' transform 4s';
 
-   
-    lift.style.top = `${currentLiftY}px`; 
-    lift.style.transition = `top ${arrivalTime / 1000}s ease`; 
+const liftOriginalPosition=lift.getBoundingClientRect();
+const liftPositionY=liftOriginalPosition.top+window.screenY;
+
+if(Math.abs(liftPositionY-positionY)<5){
+    console.log('lift is on that floor only');
+    btn.classList.add('btn-arrived');
+    btn.innerHTML='Arrived';
+    arrivalSound.play();
 
     setTimeout(() => {
-        lift.style.top = `${targetY}px`; 
-    }, 0);
-
-    liftCurrentPositions[liftIndex] = targetY; 
-    liftStates[liftIndex] = 'moving'; 
-
-    setTimeout(() => {
-        btn.classList.remove('btn-waiting');
-        btn.classList.add('btn-arrived');
-        btn.innerHTML = 'Arrived';
-        lift.classList.remove('lift-red');
-        lift.classList.add('lift-green'); 
-        arrivalSound.play(); 
-    }, arrivalTime); 
-
-    setTimeout(() => {
-        resetButtonAndLift(liftIndex, btn);
-    }, arrivalTime+1500); 
-}
-
-function resetButtonAndLift(liftIndex, btn) {
-    
-    btn.classList.remove('btn-arrived');
     btn.classList.add('btn-call');
-    btn.innerHTML = 'call';
+    btn.innerHTML='call';
+    }, 2000);
 
-    const lift = liftImages[liftIndex];
-    lift.classList.remove('lift-green'); 
-    lift.classList.add('lift-black'); 
-
-    liftStates[liftIndex] = 'idle'; 
+    return;
 }
+
+
+
+const translateY=positionY-liftPositionY;
+lift.style.transform=`translateY(${translateY}px)`;
+
+
+setTimeout(() => {
+btn.classList.remove('btn-waiting');
+btn.classList.add('btn-arrived');
+btn.innerHTML='Arrived';
+arrivalSound.play();
+}, 4000);
+
+setTimeout(()=>{
+    btn.classList.remove('btn-arrived');
+btn.classList.add('btn-call');
+btn.innerHTML='call';
+},6000)
+
+}
+
