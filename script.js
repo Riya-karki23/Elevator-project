@@ -6,31 +6,29 @@ let liftStates = Array(liftImages.length).fill('idle');
 let liftCurrentPositions = Array.from(liftImages)
     .map(lift => lift.getBoundingClientRect().top + window.scrollY);
 
-let isLiftMoving = false; 
-
 callBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-        if (isLiftMoving || btn.classList.contains('btn-waiting') || btn.classList.contains('btn-arrived')) {
-            return;
-        }
+    if (btn.classList.contains('btn-call')) {
+        btn.addEventListener("click", () => {
+            if (!btn.classList.contains('btn-waiting') && !btn.classList.contains('btn-arrived')) {
+                btn.classList.add('btn-waiting');
+                btn.innerHTML = 'waiting';
+                btn.disabled = true;  
 
-        btn.classList.add('btn-waiting');
-        btn.innerHTML = 'waiting';
+                const buttonRect = btn.getBoundingClientRect();
+                const btnY = buttonRect.top + window.scrollY;
 
-        const buttonRect = btn.getBoundingClientRect();
-        const btnY = buttonRect.top + window.scrollY;
+                const nearestLiftIndex = findNearestAvailableLift(btnY);
 
-        const nearestLiftIndex = findNearestAvailableLift(btnY);
-
-        if (nearestLiftIndex !== -1) {
-            isLiftMoving = true; 
-            moveLift(nearestLiftIndex, btnY, btn);
-        } else {
-            console.log('All lifts are currently busy');
-            btn.innerHTML = 'waiting';
-            AvailableLift(btnY, btn);
-        }
-    });
+                if (nearestLiftIndex !== -1) {
+                    moveLift(nearestLiftIndex, btnY, btn);
+                } else {
+                    console.log('All lifts are currently busy');
+                    btn.innerHTML = 'waiting';
+                    AvailableLift(btnY, btn);
+                }
+            }
+        });
+    }
 });
 
 function findNearestAvailableLift(targetY) {
@@ -92,13 +90,12 @@ function resetButtonAndLift(liftIndex, btn) {
     btn.classList.remove('btn-arrived');
     btn.classList.add('btn-call');
     btn.innerHTML = 'call';
+    btn.disabled = false;  
 
     const lift = liftImages[liftIndex];
     lift.classList.remove('lift-green');
     lift.classList.add('lift-black');
     liftStates[liftIndex] = 'idle'; 
-
-    isLiftMoving = false;
 }
 
 function AvailableLift(targetY, btn) {
