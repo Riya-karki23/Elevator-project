@@ -17,18 +17,46 @@ callBtns.forEach((btn) => {
 
             const buttonRect = btn.getBoundingClientRect();
             const btnY = buttonRect.top + window.scrollY;
-            const btnX = buttonRect.left + window.scrollX; // Get X position of the button
+            const btnX = buttonRect.left + window.scrollX; 
 
             const nearestLiftIndex = findNearestAvailableLift(btnY);
 
-            if (nearestLiftIndex !== -1) {
-                moveLift(nearestLiftIndex, btnY, btn, btnX); // Pass btnX to moveLift
-            } else {
-                console.log('All lifts are currently busy');
-                btn.innerHTML = 'waiting';
-                AvailableLift(btnY, btn);
-                
-            }
+            const allLiftsAtSamePosition = liftCurrentPositions.every(position => position === btnY);
+    
+            
+                if (allLiftsAtSamePosition) {
+                    btn.classList.remove('btn-waiting');
+                    btn.classList.add('btn-arrived');
+                    btn.innerHTML = 'Arrived';
+                   
+                    liftImages.forEach(lift => {
+                        lift.classList.remove('lift-black'); 
+                        lift.classList.add('lift-green');  
+                    });
+
+                    setTimeout(() => {
+                        btn.classList.remove('btn-arrived');
+                        btn.classList.add('btn-call');
+                        btn.innerHTML = 'call';
+
+                        liftImages.forEach(lift => {
+                            lift.classList.remove('lift-green'); 
+                            lift.classList.add('lift-black');  
+                        });
+
+                    }, 2000);
+                    console.log('All lifts are already at the final position');
+                }
+
+
+
+         else if (nearestLiftIndex !== -1) {
+                    moveLift(nearestLiftIndex, btnY, btn, btnX); 
+                } else {
+                    console.log('All lifts are currently busy');
+                    btn.innerHTML = 'waiting';
+                    AvailableLift(btnY, btn);
+                }
         });
     }
 });
@@ -50,7 +78,7 @@ function findNearestAvailableLift(targetY) {
     return nearestLiftIndex;
 }
 
-function moveLift(liftIndex, targetY, btn, btnX) { 
+function moveLift(liftIndex, targetY, btn) { 
     const lift = liftImages[liftIndex];
     lift.style.position = 'absolute';
     lift.classList.remove('lift-black');
@@ -122,7 +150,6 @@ function moveLift(liftIndex, targetY, btn, btnX) {
         arrivalSound.play(); 
         messageElement.remove();
 
-        // ------------------------------time removed after lift arrived
     }, arrivalTime-800);
 
     setTimeout(() => {
@@ -150,15 +177,21 @@ function displayMessage(text,liftX, targetY) {
 }
 
 function resetButtonAndLift(liftIndex, btn) {
-    btn.classList.remove('btn-arrived');
-    btn.classList.add('btn-call');
-    btn.innerHTML = 'call';
+    setTimeout(() => {
+        btn.classList.remove('btn-arrived');
+        btn.classList.add('btn-call');
+        btn.innerHTML = 'call';
 
-    const lift = liftImages[liftIndex];
-    lift.classList.remove('lift-green');
-    lift.classList.add('lift-black');
-    liftStates[liftIndex] = 'idle'; 
+        const lift = liftImages[liftIndex];
+        lift.classList.remove('lift-green');
+        lift.classList.add('lift-black');
+
+        setTimeout(() => {
+            liftStates[liftIndex] = 'idle'; 
+        }, 2000); 
+    }, 2000); 
 }
+
 
 function AvailableLift(targetY, btn) {
     const pollingInterval = setInterval(() => {
@@ -168,5 +201,7 @@ function AvailableLift(targetY, btn) {
             clearInterval(pollingInterval); 
             moveLift(nearestLiftIndex, targetY, btn); 
         }
-    }, 1000); 
+    }, 2000); 
 }
+
+
