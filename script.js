@@ -139,7 +139,7 @@ function moveLift(liftIndex, targetY, btn) {
 
     setTimeout(() => {
         lift.style.top = `${targetY}px`; 
-    }, 300);
+    }, 2000);
 
     liftCurrentPositions[liftIndex] = targetY;
     liftStates[liftIndex] = 'moving'; 
@@ -153,11 +153,11 @@ function moveLift(liftIndex, targetY, btn) {
         arrivalSound.play(); 
         messageElement.remove();
 
-    }, arrivalTime-800);
+    }, arrivalTime+2000);
 
     setTimeout(() => {
         resetButtonAndLift(liftIndex, btn); 
-    }, arrivalTime + 200); 
+    }, arrivalTime +2000+ 200); 
 }
 
 function displayMessage(text,liftX, targetY) {
