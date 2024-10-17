@@ -51,9 +51,7 @@ callBtns.forEach((btn) => {
 
 
          else if (nearestLiftIndex !== -1) {
-            setTimeout(() => {
-                moveLift(nearestLiftIndex, btnY, btn, btnX); 
-            }, 2000);
+                    moveLift(nearestLiftIndex, btnY, btn, btnX); 
                 } else {
                     console.log('All lifts are currently busy');
                     btn.innerHTML = 'waiting';
