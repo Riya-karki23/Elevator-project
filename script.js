@@ -52,7 +52,9 @@ callBtns.forEach((btn) => {
 
          else if (nearestLiftIndex !== -1) {
                     moveLift(nearestLiftIndex, btnY, btn, btnX); 
-                } else {
+                }
+                
+                else {
                     console.log('All lifts are currently busy');
                     btn.innerHTML = 'waiting';
                     AvailableLift(btnY, btn);
@@ -78,6 +80,7 @@ function findNearestAvailableLift(targetY) {
     return nearestLiftIndex;
 }
 
+    
 function moveLift(liftIndex, targetY, btn) { 
     const lift = liftImages[liftIndex];
     lift.style.position = 'absolute';
@@ -201,7 +204,7 @@ function AvailableLift(targetY, btn) {
             clearInterval(pollingInterval); 
             moveLift(nearestLiftIndex, targetY, btn); 
         }
-    }, 2000); 
+    }, 1000); 
 }
 
 
