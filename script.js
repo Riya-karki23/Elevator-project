@@ -50,7 +50,7 @@ function findNearestAvailableLift(targetY) {
     return nearestLiftIndex;
 }
 
-function moveLift(liftIndex, targetY, btn) {
+function moveLift(liftIndex, targetY, btn, btnX) { 
     const lift = liftImages[liftIndex];
     lift.style.position = 'absolute';
     lift.classList.remove('lift-black');
@@ -60,29 +60,46 @@ function moveLift(liftIndex, targetY, btn) {
     const distance = Math.abs(targetY - currentLiftY);
 
     // ------------------------------------------------------------time calculated for the lift to reach
-
     const speed = 40; 
     const arrivalTime = (distance / speed) * 1000; 
-    
+
     let totalSeconds = Math.floor(arrivalTime / 1000);
-    
-    const minutes = Math.floor(totalSeconds / 60);
     
     const liftRect = lift.getBoundingClientRect();
     const liftX = liftRect.left + window.scrollX; 
     const messageElement = displayMessage('', liftX, targetY);
 
-    const countdown = setInterval(() => {
-        if (totalSeconds <= 0) {
-            clearInterval(countdown);
-            console.log('lift arrived');
-            return;
-        }
-        
-        totalSeconds--;
-        messageElement.textContent = `${minutes} mins ${totalSeconds} sec `;
-        console.log(`${totalSeconds} seconds remaining`);
-    }, 1000);
+    if (totalSeconds <= 1) {
+        messageElement.textContent = `0 min 1 sec`;
+        console.log('1 second');
+
+        setTimeout(() => {
+            messageElement.remove(); 
+            btn.classList.remove('btn-waiting');
+            btn.classList.add('btn-arrived');
+            btn.innerHTML = 'Arrived';
+            lift.classList.remove('lift-red');
+            lift.classList.add('lift-green');
+            arrivalSound.play(); 
+        }, arrivalTime);
+
+    } else {
+        const countdown = setInterval(() => {
+            if (totalSeconds <= 0) {
+                clearInterval(countdown);
+                console.log('Lift arrived');
+                return;
+            }
+
+            let minutes = Math.floor(totalSeconds / 60);
+            let seconds = totalSeconds % 60;
+
+            messageElement.textContent = `${minutes} mins ${seconds} sec `;
+            console.log(`${totalSeconds} seconds remaining`);
+
+            totalSeconds--;
+        }, 1000);
+    }
   
 
     lift.style.top = `${currentLiftY}px`;
